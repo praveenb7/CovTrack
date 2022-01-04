@@ -4,11 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,7 +41,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().hide();
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         dailyConfirm = findViewById(R.id.dailyConfirm);
         dailyDeaths = findViewById(R.id.dailyDeath);
@@ -52,11 +59,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         covidStateList = new ArrayList<>();
         requestQueue = Volley.newRequestQueue(this);
-        jsonGet();
+        if(hasInternet(getApplicationContext())) {
+            getStateData();
+        }
+        else {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "This service needs internet connection!", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
-    private void jsonGet(){
+    private void getStateData(){
         progressBar.setVisibility(View.VISIBLE);
         String url = "https://data.covid19india.org/data.json";
 
@@ -64,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray statewiseArray = response.getJSONArray("statewise");
-                    JSONObject currentIndiaData = statewiseArray.getJSONObject(0);
+                    JSONArray stateWiseArray = response.getJSONArray("statewise");
+                    JSONObject currentIndiaData = stateWiseArray.getJSONObject(0);
 
                     String dailyConfirmed = "+" + currentIndiaData.getString("deltaconfirmed");
                     String dailyDeath = "+" + currentIndiaData.getString("deltadeaths");
@@ -85,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
                     totalRecovered.setText(currentTotalRecovered);
                     totalDeath.setText(currentTotalDeath);
 
-                    for (int i = 1; i < statewiseArray.length(); i++) {
-                        JSONObject stateWiseArrayJSONObject = statewiseArray.getJSONObject(i);
+                    for (int i = 1; i < stateWiseArray.length(); i++) {
+                        JSONObject stateWiseArrayJSONObject = stateWiseArray.getJSONObject(i);
                         Log.d("CovTrack", "onResponse: "+stateWiseArrayJSONObject);
                         String active = stateWiseArrayJSONObject.getString("active");
                         String death = stateWiseArrayJSONObject.getString("deaths");
@@ -110,14 +123,14 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 
-
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Something went wrong... Try again later", Toast.LENGTH_SHORT).show();
                 }
 
             }
         },
-
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -126,5 +139,13 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         requestQueue.add(request);
+        Log.d("Ending", "executed...");
     }
+
+    public static boolean hasInternet(Context c) {
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return(netInfo != null && netInfo.isConnected());
+    }
+
 }

@@ -13,4 +13,5 @@
     <string name="active">Active: </string>
     <string name="viewmore">View More</string>
     <string name="total_confirmed">Total Confirmed: </string>
+    <string name="heading">Total Covid-19 Cases in India</string>
 </resources>

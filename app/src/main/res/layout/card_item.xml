@@ -13,8 +13,9 @@
         android:id="@+id/myLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="10dp">
 
 
         <TextView
@@ -22,6 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/state_name"
+            android:padding="5dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold"
             android:textColor="@color/black" />
@@ -191,11 +193,13 @@
 
             <Button
                 android:id="@+id/viewmore"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="2dp"
                 android:text="@string/viewmore"
+                android:textColor="@color/white"
                 android:backgroundTint="@color/colorPrimaryDark"
-                android:textSize="14dp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 

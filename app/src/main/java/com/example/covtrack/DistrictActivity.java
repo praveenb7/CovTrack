@@ -1,5 +1,7 @@
 package com.example.covtrack;
 
+import static com.example.covtrack.MainActivity.hasInternet;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -45,22 +48,31 @@ public class DistrictActivity extends AppCompatActivity {
 
         if(bundle != null){
             statename = bundle.getString("statename");
-            getSupportActionBar().setTitle(statename);
-        }
+            if(getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(statename);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#0C23A6")));
+            }
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#0f32bd")));
+        }
 
         recyclerView = findViewById(R.id.districtrecyclerview);
         districtProgressBar = findViewById(R.id.districtProgressBar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         covidDistrictList = new ArrayList<>();
         requestQueue = Volley.newRequestQueue(this);
-        jsonGet();
+
+        if(hasInternet(getApplicationContext())) {
+            getDistrictData();
+        }
+        else {
+            districtProgressBar.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "This service needs internet connection!", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
-    private void jsonGet() {
+    private void getDistrictData() {
         String url = "https://data.covid19india.org/state_district_wise.json";
         districtProgressBar.setVisibility(View.VISIBLE);
 
